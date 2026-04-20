@@ -301,8 +301,8 @@
         8:    { type: "image", value: "FLARE.png" },
         16:   { type: "text",  value: "👻" },
         32:   { type: "image", value: "crimescene.png" },
-        64:   { type: "text",  value: "🎉" },
-        128:  { type: "text",  value: "💎" },
+        64:   { type: "image",  value: "stamp.png" },
+        128:  { type: "text",  value: "🧙‍♀️" },
         256:  { type: "text",  value: "👑" },
         512:  { type: "text",  value: "🚀" },
         1024: { type: "text",  value: "🌈" },
@@ -313,7 +313,9 @@
         8: "2026 해맞이한마당의 모토는 FLARE입니다!",
         16: "학생회관 202호에서는 악령 퇴마 컨셉의 공포 방탈출이 진행됩니다.",
         32: "대강당 대기실에서는 추리게임 크라임씬이 진행됩니다.",
+        64: "지곡회관 앞 부스에서 스탬프 투어에 참여하고 상품 받아가세요!",
         128: "우와! 128 달성!",
+        256: "256 달성",
         512: "대단해! 512 달성!",
         1024: "정말 잘하고 있어!",
         2048: "축하합니다! 2048을 만들었어요!",
@@ -374,9 +376,14 @@
       board = emptyBoard();
       score = 0;
       isGameOver = false;
+      shownMilestones = new Set();
+      localStorage.setItem("custom2048-milestones", JSON.stringify([]));
+
       scoreEl.textContent = "0";
       gameOverOverlay.classList.remove("show");
       messageOverlay.classList.remove("show");
+      milestoneLog.textContent = "아직 출력된 메시지가 없습니다.";
+
       addRandomTile();
       addRandomTile();
       render();
