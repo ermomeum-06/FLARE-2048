@@ -162,7 +162,7 @@
     .tile img{
       width:100%;
       height:100%;
-      object-fit:cover;
+      object-fit: contain;
       display:block;
     }
     .overlay{
@@ -601,6 +601,11 @@ function finalizeMove(oldBoard, gained) {
           if (custom?.type === "image") {
             const img = document.createElement("img");
             img.src = custom.value;
+            if (custom.value === "stamp.png") {
+              img.style.width = "70%";
+              img.style.height = "70%";
+              img.style.objectFit = "contain";
+            }
             img.alt = String(value);
             img.onerror = () => {
               tile.innerHTML = "";
