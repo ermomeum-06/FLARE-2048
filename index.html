@@ -270,7 +270,10 @@
           <div class="overlay-box">
             <h2>게임 오버</h2>
             <p>더 이상 이동할 수 없습니다.</p>
-            <button id="retryBtn">다시 시작</button>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+              <button id="viewBoardBtn">보드 보기</button>
+              <button id="retryBtn">새 게임</button>
+            </div>
           </div>
         </div>
       </div>
@@ -346,6 +349,7 @@
     const closeOverlayBtn = document.getElementById("closeOverlayBtn");
     const gameOverOverlay = document.getElementById("gameOverOverlay");
     const retryBtn = document.getElementById("retryBtn");
+    const viewBoardBtn = document.getElementById("viewBoardBtn");
     const restartBtn = document.getElementById("restartBtn");
     const boardWrap = document.getElementById("boardWrap");
     const milestoneLog = document.getElementById("milestoneLog");
@@ -690,6 +694,9 @@ function finalizeMove(oldBoard, gained) {
     restartBtn.addEventListener("click", restartGame);
     retryBtn.addEventListener("click", restartGame);
     closeOverlayBtn.addEventListener("click", () => messageOverlay.classList.remove("show"));
+    viewBoardBtn.addEventListener("click", () => {
+      gameOverOverlay.classList.remove("show");
+    });
 
     window.addEventListener("resize", render);
 
