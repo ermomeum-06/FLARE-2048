@@ -354,12 +354,19 @@
     const boardWrap = document.getElementById("boardWrap");
     const milestoneLog = document.getElementById("milestoneLog");
 
+    const STORAGE_KEYS = {
+      best: "flare2048-best",
+      board: "flare2048-board",
+      score: "flare2048-score",
+      milestones: "flare2048-milestones"
+    };
+
     const size = CONFIG.boardSize;
     const gap = 12;
     let board = [];
     let score = 0;
-    let best = Number(localStorage.getItem("custom2048-best") || 0);
-    let shownMilestones = new Set(JSON.parse(localStorage.getItem("custom2048-milestones") || "[]"));
+    let best = Number(localStorage.getItem(STORAGE_KEYS.best) || 0);
+    let shownMilestones = new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.milestones) || "[]"));
     let isGameOver = false;
     let touchStartX = 0;
     let touchStartY = 0;
@@ -386,7 +393,11 @@
       score = 0;
       isGameOver = false;
       shownMilestones = new Set();
-      localStorage.setItem("custom2048-milestones", JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.milestones, JSON.stringify([]));
+
+      localStorage.removeItem(STORAGE_KEYS.board)
+      localStorage.removeItem(STORAGE_KEYS.score)
+      localStorage.removeItem(STORAGE_KEYS.milestones)
 
       scoreEl.textContent = "0";
       gameOverOverlay.classList.remove("show");
@@ -397,6 +408,7 @@
       addRandomTile();
       scoreEl.textContent = getMaxTile();
       render();
+      saveGameState();
     }
 
     function getEmptyCells() {
@@ -506,6 +518,30 @@ function getMaxTile() {
   return Math.max(...board.flat());
 }
 
+function saveGameState() {
+  localStorage.setItem(STORAGE_KEYS.board, JSON.stringify(board));
+  localStorage.setItem(STORAGE_KEYS.score, String(score));
+  localStorage.setItem(STORAGE_KEYS.best, String(best));
+  localStorage.setItem(STORAGE_KEYS.milestones, JSON.stringify([...shownMilestones]));
+}
+
+function loadGameState() {
+  const saveBoard = localStorage.getItem(STORAGE_KEYS.board);
+
+  if (saveBoard){
+    board = JSON.parse(saveBoard);
+    score=Number(localStorage.getItem(STORAGE_KEYS.score) || 0);
+    best=Number(localStorage.getItem(STORAGE_KEYS.best) || 0);
+    shownMilestones = new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.milestones) || "[]"));
+
+    scoreEl.textContent = getMaxTile();
+    bestEl.textContent = best;
+    render();
+    return true;
+  }
+  return false;
+}
+
 function finalizeMove(oldBoard, gained) {
       const changed = !arraysEqual(oldBoard, board);
       if (changed) {
@@ -515,7 +551,7 @@ function finalizeMove(oldBoard, gained) {
 
         if (maxTile > best) {
           best = maxTile;
-          localStorage.setItem("custom2048-best", String(best));
+          localStorage.setItem(STORAGE_KEYS.best, String(best));
           bestEl.textContent = best;
         }
 
@@ -523,6 +559,7 @@ function finalizeMove(oldBoard, gained) {
         addRandomTile();
         checkMilestones();
         render();
+        saveGameState();
         checkGameOver();
       }
       return changed;
@@ -556,7 +593,7 @@ function finalizeMove(oldBoard, gained) {
       for (const value of values) {
         if (flat.some(v => v >= value) && !shownMilestones.has(value)) {
           shownMilestones.add(value);
-          localStorage.setItem("custom2048-milestones", JSON.stringify([...shownMilestones]));
+          localStorage.setItem(STORAGE_KEYS.milestones, JSON.stringify([...shownMilestones]));
           overlayTitle.textContent = value >= CONFIG.winValue ? "최종 달성!" : `${value} 달성`;
           overlayText.textContent = CONFIG.milestones[value];
           milestoneLog.textContent = `[${value}] ${CONFIG.milestones[value]}`;
@@ -568,7 +605,7 @@ function finalizeMove(oldBoard, gained) {
 
     function getTileStyle(value) {
       const map = {
-        2:"#eee4da",4:"#ede0c8",8:"#f2b179",16:"#f59563",32:"#f67c5f",64:"#f65e3b",
+        2:"#eee4da",4:"#ede0c8",8:"#f2b179",16:"#f59563",32:"#f67c5f",64:"#edd283",
         128:"#edcf72",256:"#edcc61",512:"#edc850",1024:"#edc53f",2048:"#edc22e"
       };
       return {
@@ -701,7 +738,10 @@ function finalizeMove(oldBoard, gained) {
     window.addEventListener("resize", render);
 
     initGridBg();
-    restartGame();
+    if (!loadGameState()) {
+      restartGame();
+    }
+    
     bestEl.textContent = best;
   </script>
 </body>
